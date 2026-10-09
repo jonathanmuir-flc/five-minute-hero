@@ -1,182 +1,156 @@
-// ---------------------------------------------------------------------------
-// PLACEHOLDER DATA: the prototype (reference/hero-picker.html) was missing
-// when this was built. Everything below is SRD 5.2 content, but the
-// stat priorities, suggested backgrounds, and species affinities are a
-// reasonable first pass, not a port. Replace with the prototype's values.
-// ---------------------------------------------------------------------------
-import type { AbilityKey } from '../types/character'
+// Content source of truth: reference/hero-picker.html. Values are copied from
+// the prototype's CLASSES table. Do not reword or "improve" them; the parity
+// tests compare this file against the prototype.
+import type { Ability } from './abilities'
 
-/**
- * TS pattern: `as const` freezes the array so TypeScript remembers the exact
- * strings instead of widening them to `string`. `typeof CLASS_IDS[number]`
- * then turns that into a union type: 'barbarian' | 'bard' | ...
- */
-export const CLASS_IDS = [
-  'barbarian',
-  'bard',
-  'cleric',
-  'druid',
-  'fighter',
-  'monk',
-  'paladin',
-  'ranger',
-  'rogue',
-  'sorcerer',
-  'warlock',
-  'wizard',
+export const CLASS_NAMES = [
+  'Barbarian',
+  'Bard',
+  'Cleric',
+  'Druid',
+  'Fighter',
+  'Monk',
+  'Paladin',
+  'Ranger',
+  'Rogue',
+  'Sorcerer',
+  'Warlock',
+  'Wizard',
 ] as const
-export type ClassId = (typeof CLASS_IDS)[number]
+export type ClassName = (typeof CLASS_NAMES)[number]
 
-export type SpeciesId =
-  | 'dragonborn'
-  | 'dwarf'
-  | 'elf'
-  | 'gnome'
-  | 'goliath'
-  | 'halfling'
-  | 'human'
-  | 'orc'
-  | 'tiefling'
+export type Background = 'Acolyte' | 'Criminal' | 'Sage' | 'Soldier'
 
 export interface ClassInfo {
-  id: ClassId
-  name: string
-  /** One-line pitch shown on the sheet. */
-  blurb: string
-  /** Hit Die size (d12 -> 12). Used to work out level 5 hit points. */
-  hitDie: 6 | 8 | 10 | 12
-  /**
-   * Which abilities matter most, best first. The standard array
-   * (15, 14, 13, 12, 10, 8) is dealt out in this order.
-   */
-  statPriority: [AbilityKey, AbilityKey, AbilityKey, AbilityKey, AbilityKey, AbilityKey]
-  /** One of the four SRD 5.2 backgrounds. */
-  background: 'Acolyte' | 'Criminal' | 'Sage' | 'Soldier'
-  /** What you can do at level 5, in plain words. */
-  features: string[]
-  /** Species that fit this class a little better (small tie-break bonus). */
-  speciesAffinity: SpeciesId[]
+  /** Ability priority, best first. The standard array is dealt out in this order. */
+  pri: readonly [Ability, Ability, Ability, Ability, Ability, Ability]
+  /** Background. Its ability bonuses are NOT applied; the DM does that. */
+  bg: Background
+  /** Finishes the sentence "You're ..." */
+  pitch: string
+  /** The three "On your turn" bullets. */
+  turn: readonly [string, string, string]
 }
 
-export const CLASSES: Record<ClassId, ClassInfo> = {
-  barbarian: {
-    id: 'barbarian',
-    name: 'Barbarian',
-    blurb: 'A whirlwind of rage who shrugs off blows that would fell anyone else.',
-    hitDie: 12,
-    statPriority: ['str', 'con', 'dex', 'wis', 'cha', 'int'],
-    background: 'Soldier',
-    features: ['Rage (3/day, +2 damage, resist bludgeoning/piercing/slashing)', 'Reckless Attack', 'Extra Attack', 'Fast Movement (+10 ft.)', 'Danger Sense'],
-    speciesAffinity: ['goliath', 'orc', 'dwarf'],
+export const CLASSES: Record<ClassName, ClassInfo> = {
+  Barbarian: {
+    pri: ['STR', 'CON', 'DEX', 'WIS', 'CHA', 'INT'],
+    bg: 'Soldier',
+    pitch: 'a furious powerhouse who wades into the fight and refuses to fall',
+    turn: [
+      'Rage to hit harder and shrug off damage',
+      'Swing a big weapon twice each turn',
+      'Stand at the front and soak hits for the party',
+    ],
   },
-  bard: {
-    id: 'bard',
-    name: 'Bard',
-    blurb: 'A silver-tongued performer whose music is literally magic.',
-    hitDie: 8,
-    statPriority: ['cha', 'dex', 'con', 'wis', 'int', 'str'],
-    background: 'Criminal',
-    features: ['Bardic Inspiration (d8)', 'Font of Inspiration', 'Jack of All Trades', 'Spellcasting (up to 3rd-level spells)'],
-    speciesAffinity: ['human', 'halfling', 'tiefling'],
+  Bard: {
+    pri: ['CHA', 'DEX', 'CON', 'WIS', 'INT', 'STR'],
+    bg: 'Criminal',
+    pitch: 'a silver-tongued performer whose magic lives in words and music',
+    turn: [
+      'Hand allies Bardic Inspiration dice for big moments',
+      'Cast spells that charm, confuse, or heal',
+      'Do the talking when the party meets someone new',
+    ],
   },
-  cleric: {
-    id: 'cleric',
-    name: 'Cleric',
-    blurb: 'A divine champion who heals the party and smites the wicked.',
-    hitDie: 8,
-    statPriority: ['wis', 'con', 'str', 'dex', 'cha', 'int'],
-    background: 'Acolyte',
-    features: ['Spellcasting (up to 3rd-level spells)', 'Channel Divinity (2/rest)', 'Sear Undead', 'Divine Order'],
-    speciesAffinity: ['dwarf', 'human', 'dragonborn'],
+  Cleric: {
+    pri: ['WIS', 'CON', 'STR', 'CHA', 'INT', 'DEX'],
+    bg: 'Acolyte',
+    pitch: 'a divine champion who keeps the party alive and smites the wicked',
+    turn: [
+      'Heal friends and shield them with spells',
+      'Channel Divinity for a burst of holy power',
+      'Hold the line in armor with a mace when needed',
+    ],
   },
-  druid: {
-    id: 'druid',
-    name: 'Druid',
-    blurb: 'A keeper of the wild who turns into beasts and calls down storms.',
-    hitDie: 8,
-    statPriority: ['wis', 'con', 'dex', 'int', 'cha', 'str'],
-    background: 'Sage',
-    features: ['Spellcasting (up to 3rd-level spells)', 'Wild Shape (2/rest)', 'Wild Companion', 'Wild Resurgence'],
-    speciesAffinity: ['elf', 'gnome', 'goliath'],
+  Druid: {
+    pri: ['WIS', 'CON', 'DEX', 'INT', 'CHA', 'STR'],
+    bg: 'Sage',
+    pitch: 'a guardian of the wild who speaks for nature and wears its shapes',
+    turn: [
+      'Wild Shape into an animal to scout or fight',
+      'Cast nature spells that tangle, heal, or call storms',
+      'Read the land and its creatures',
+    ],
   },
-  fighter: {
-    id: 'fighter',
-    name: 'Fighter',
-    blurb: 'A master of arms who is good with every weapon and great with one.',
-    hitDie: 10,
-    statPriority: ['str', 'con', 'dex', 'wis', 'cha', 'int'],
-    background: 'Soldier',
-    features: ['Second Wind (2/rest)', 'Action Surge', 'Extra Attack', 'Fighting Style', 'Tactical Shift'],
-    speciesAffinity: ['human', 'dwarf', 'dragonborn'],
+  Fighter: {
+    pri: ['STR', 'CON', 'DEX', 'WIS', 'CHA', 'INT'],
+    bg: 'Soldier',
+    pitch: 'a disciplined warrior who has trained for exactly this',
+    turn: [
+      'Attack twice every turn',
+      'Action Surge for one extra burst of actions',
+      'Use Second Wind to patch yourself up mid-fight',
+    ],
   },
-  monk: {
-    id: 'monk',
-    name: 'Monk',
-    blurb: 'A disciplined martial artist who moves faster than the eye can follow.',
-    hitDie: 8,
-    statPriority: ['dex', 'wis', 'con', 'str', 'cha', 'int'],
-    background: 'Acolyte',
-    features: ['Martial Arts (d8)', 'Monk’s Focus (5 points)', 'Extra Attack', 'Stunning Strike', 'Deflect Attacks'],
-    speciesAffinity: ['human', 'elf', 'goliath'],
+  Monk: {
+    pri: ['DEX', 'WIS', 'CON', 'STR', 'INT', 'CHA'],
+    bg: 'Acolyte',
+    pitch: 'a lightning-fast martial artist who turns their body into a weapon',
+    turn: [
+      'Throw a flurry of strikes using Focus',
+      'Stun enemies with a precise blow',
+      'Move fast and deflect attacks',
+    ],
   },
-  paladin: {
-    id: 'paladin',
-    name: 'Paladin',
-    blurb: 'A sworn knight whose oath burns bright enough to smite.',
-    hitDie: 10,
-    statPriority: ['str', 'cha', 'con', 'wis', 'dex', 'int'],
-    background: 'Acolyte',
-    features: ['Lay On Hands (25 HP pool)', 'Divine Smite', 'Extra Attack', 'Faithful Steed', 'Channel Divinity'],
-    speciesAffinity: ['human', 'dragonborn', 'dwarf'],
+  Paladin: {
+    pri: ['STR', 'CHA', 'CON', 'WIS', 'DEX', 'INT'],
+    bg: 'Acolyte',
+    pitch: 'a sworn knight whose oath gives their blade holy fire',
+    turn: [
+      'Pour divine power into a hit with Divine Smite',
+      'Heal with Lay on Hands',
+      'Stand between your friends and danger in heavy armor',
+    ],
   },
-  ranger: {
-    id: 'ranger',
-    name: 'Ranger',
-    blurb: 'A hunter of the wilds who never misses and never gets lost.',
-    hitDie: 10,
-    statPriority: ['dex', 'wis', 'con', 'str', 'int', 'cha'],
-    background: 'Soldier',
-    features: ['Favored Enemy (Hunter’s Mark, 2/day free)', 'Extra Attack', 'Fighting Style', 'Spellcasting (up to 2nd-level spells)'],
-    speciesAffinity: ['elf', 'human', 'halfling'],
+  Ranger: {
+    pri: ['DEX', 'WIS', 'CON', 'STR', 'INT', 'CHA'],
+    bg: 'Soldier',
+    pitch: 'a sharp-eyed hunter and tracker who never loses the trail',
+    turn: [
+      "Mark a target with Hunter's Mark for extra damage",
+      'Fire your bow twice each turn',
+      'Scout ahead, track, and spot trouble first',
+    ],
   },
-  rogue: {
-    id: 'rogue',
-    name: 'Rogue',
-    blurb: 'A shadow with a knife who is always somewhere they should not be.',
-    hitDie: 8,
-    statPriority: ['dex', 'con', 'int', 'wis', 'cha', 'str'],
-    background: 'Criminal',
-    features: ['Sneak Attack (3d6)', 'Cunning Action', 'Uncanny Dodge', 'Steady Aim', 'Expertise'],
-    speciesAffinity: ['halfling', 'elf', 'tiefling'],
+  Rogue: {
+    pri: ['DEX', 'CON', 'INT', 'WIS', 'CHA', 'STR'],
+    bg: 'Criminal',
+    pitch: 'a quick, sneaky specialist who strikes where it hurts',
+    turn: [
+      'Land one big Sneak Attack hit per turn',
+      'Hide, dash, or slip away as a bonus action',
+      'Pick locks, find traps, and get into places',
+    ],
   },
-  sorcerer: {
-    id: 'sorcerer',
-    name: 'Sorcerer',
-    blurb: 'Magic runs in their blood, and it wants out.',
-    hitDie: 6,
-    statPriority: ['cha', 'con', 'dex', 'wis', 'int', 'str'],
-    background: 'Sage',
-    features: ['Spellcasting (up to 3rd-level spells)', 'Font of Magic (5 Sorcery Points)', 'Metamagic', 'Sorcerous Restoration'],
-    speciesAffinity: ['dragonborn', 'tiefling', 'elf'],
+  Sorcerer: {
+    pri: ['CHA', 'CON', 'DEX', 'WIS', 'INT', 'STR'],
+    bg: 'Sage',
+    pitch: 'someone born with raw magic in their blood that barely stays contained',
+    turn: [
+      'Throw big spells like Fireball',
+      'Twist your spells with Metamagic',
+      'Spend Sorcery Points to cast more',
+    ],
   },
-  warlock: {
-    id: 'warlock',
-    name: 'Warlock',
-    blurb: 'Someone, or something, gave them power. The price comes later.',
-    hitDie: 8,
-    statPriority: ['cha', 'con', 'dex', 'wis', 'int', 'str'],
-    background: 'Criminal',
-    features: ['Pact Magic (2 slots, 3rd level)', 'Eldritch Invocations (3)', 'Magical Cunning', 'Eldritch Blast'],
-    speciesAffinity: ['tiefling', 'human', 'elf'],
+  Warlock: {
+    pri: ['CHA', 'CON', 'DEX', 'WIS', 'INT', 'STR'],
+    bg: 'Criminal',
+    pitch: 'someone who made a deal with a mysterious patron and got real power for it',
+    turn: [
+      'Blast enemies with Eldritch Blast every turn',
+      'Use Invocations, small permanent magic tricks',
+      'Recover your few spell slots after a short rest',
+    ],
   },
-  wizard: {
-    id: 'wizard',
-    name: 'Wizard',
-    blurb: 'A scholar of the arcane with an answer for everything (in a book).',
-    hitDie: 6,
-    statPriority: ['int', 'con', 'dex', 'wis', 'cha', 'str'],
-    background: 'Sage',
-    features: ['Spellcasting (up to 3rd-level spells)', 'Arcane Recovery', 'Ritual Adept', 'Memorize Spell'],
-    speciesAffinity: ['gnome', 'elf', 'human'],
+  Wizard: {
+    pri: ['INT', 'CON', 'DEX', 'WIS', 'CHA', 'STR'],
+    bg: 'Sage',
+    pitch: 'a scholar of magic with a spellbook for every problem',
+    turn: [
+      'Pick from the biggest spell list in the game',
+      'Cast Fireball, shields, and clever utility spells',
+      'Recover spells on a short rest with Arcane Recovery',
+    ],
   },
 }

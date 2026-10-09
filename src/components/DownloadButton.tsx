@@ -31,7 +31,7 @@ export function DownloadButton({ character }: DownloadButtonProps) {
   }
 
   return (
-    <button type="button" className="btn" onClick={download}>
+    <button type="button" className="ghost" onClick={download}>
       Download for the DM
     </button>
   )

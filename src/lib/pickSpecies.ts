@@ -1,30 +1,12 @@
-import { CLASSES, type ClassId, type SpeciesId } from '../data/classes'
-import { SPECIES_IDS } from '../data/species'
-import type { AnswerOption } from '../data/questions'
+import type { ClassName } from '../data/classes'
+import { SPECIES_FIT, type SpeciesName } from '../data/species'
+import { chosenOption, type Answers } from './answers'
 
 /**
- * Species = answer species weights + a small bonus for species that suit
- * the chosen class (3 / 2 / 1 for the class's first / second / third
- * affinity). Ties keep SPECIES_IDS order.
+ * The first q5 species that fits the chosen class; if none fits, the first
+ * q5 species. With no q5 answer the hero is Human.
  */
-export function pickSpecies(answers: AnswerOption[], classId: ClassId): SpeciesId {
-  const totals: Record<SpeciesId, number> = Object.fromEntries(
-    SPECIES_IDS.map((id) => [id, 0]),
-  ) as Record<SpeciesId, number>
-
-  for (const answer of answers) {
-    for (const [id, weight] of Object.entries(answer.speciesWeights ?? {}) as [SpeciesId, number][]) {
-      totals[id] += weight
-    }
-  }
-
-  CLASSES[classId].speciesAffinity.forEach((id, index) => {
-    totals[id] += 3 - index
-  })
-
-  let best: SpeciesId = SPECIES_IDS[0]
-  for (const id of SPECIES_IDS) {
-    if (totals[id] > totals[best]) best = id
-  }
-  return best
+export function pickSpecies(answers: Answers, className: ClassName): SpeciesName {
+  const candidates = chosenOption(answers, 'q5')?.species ?? (['Human'] as const)
+  return candidates.find((sp) => SPECIES_FIT[sp]?.includes(className)) ?? candidates[0]
 }

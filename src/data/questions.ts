@@ -1,207 +1,97 @@
-// PLACEHOLDER DATA: the six questions and their scoring weights are a first
-// pass, not a port of the prototype. See the note at the top of classes.ts.
-import type { ClassId, SpeciesId } from './classes'
+// Content source of truth: reference/hero-picker.html (Q). Titles, subtitles,
+// order and weights are copied exactly. Only q1-q4 score classes; q5 picks a
+// species and q6 picks the tone.
 import type { Tone } from '../types/character'
+import type { ClassName } from './classes'
+import type { SpeciesName } from './species'
+
+export type QuestionId = 'q1' | 'q2' | 'q3' | 'q4' | 'q5' | 'q6'
+
+export type ClassPoints = Partial<Record<ClassName, number>>
 
 export interface AnswerOption {
-  /** Short stable id, used as the answer value and in tests. */
-  id: string
-  label: string
-  /**
-   * TS pattern: `Partial<Record<...>>` makes every key optional, so an
-   * option only has to list the classes it actually nudges.
-   */
-  classWeights: Partial<Record<ClassId, number>>
-  speciesWeights?: Partial<Record<SpeciesId, number>>
-  /** Only the final question sets a tone. */
+  title: string
+  subtitle: string
+  /** q1-q4 only: points added to each listed class. */
+  points?: ClassPoints
+  /** q5 only: candidate species, in order of preference. */
+  species?: readonly SpeciesName[]
+  /** q6 only. */
   tone?: Tone
 }
 
 export interface Question {
-  id: string
-  prompt: string
-  options: AnswerOption[]
+  id: QuestionId
+  label: string
+  options: readonly AnswerOption[]
 }
 
-export const QUESTIONS: Question[] = [
+export const SCORING_QUESTION_IDS: readonly QuestionId[] = ['q1', 'q2', 'q3', 'q4']
+
+export const QUESTIONS: readonly Question[] = [
   {
-    id: 'brawl',
-    prompt: 'A tavern brawl breaks out. What do you do?',
+    id: 'q1',
+    label: 'When the fight starts, you…',
     options: [
-      {
-        id: 'brawl-swing',
-        label: 'Flip the table and wade in swinging.',
-        classWeights: { barbarian: 3, fighter: 2, paladin: 1 },
-        speciesWeights: { orc: 1, goliath: 1 },
-      },
-      {
-        id: 'brawl-knife',
-        label: 'Slip behind the biggest one with a knife.',
-        classWeights: { rogue: 3, ranger: 1, monk: 1 },
-        speciesWeights: { halfling: 1, elf: 1 },
-      },
-      {
-        id: 'brawl-shout',
-        label: 'Say something so good that everyone stops to listen.',
-        classWeights: { bard: 3, warlock: 1, sorcerer: 1, paladin: 1 },
-        speciesWeights: { tiefling: 1, human: 1 },
-      },
-      {
-        id: 'brawl-mutter',
-        label: 'Back toward the door and start muttering under your breath.',
-        classWeights: { wizard: 3, sorcerer: 2, warlock: 1, druid: 1 },
-        speciesWeights: { gnome: 1, elf: 1 },
-      },
+      { title: 'Charge in first', subtitle: 'Get up close and take the hits', points: { Barbarian: 3, Fighter: 3, Paladin: 2, Monk: 1 } },
+      { title: 'Strike from the shadows', subtitle: 'Find the angle, hit hard, vanish', points: { Rogue: 3, Ranger: 2, Monk: 2 } },
+      { title: 'Bend reality', subtitle: 'Throw magic from the back line', points: { Wizard: 3, Sorcerer: 3, Warlock: 3 } },
+      { title: 'Keep everyone standing', subtitle: 'Heal, protect, and support', points: { Cleric: 3, Druid: 2, Bard: 2, Paladin: 1 } },
     ],
   },
   {
-    id: 'power',
-    prompt: 'Where does your power come from?',
+    id: 'q2',
+    label: 'Where does your power come from?',
     options: [
-      {
-        id: 'power-grit',
-        label: 'Training, scars, and sheer grit.',
-        classWeights: { fighter: 3, barbarian: 2, monk: 2, rogue: 1 },
-        speciesWeights: { human: 1, dwarf: 1 },
-      },
-      {
-        id: 'power-oath',
-        label: 'A god, an oath, or a cause bigger than me.',
-        classWeights: { cleric: 3, paladin: 3 },
-        speciesWeights: { dwarf: 1, dragonborn: 1 },
-      },
-      {
-        id: 'power-wild',
-        label: 'The wild places and the old ways.',
-        classWeights: { druid: 3, ranger: 3 },
-        speciesWeights: { elf: 1, goliath: 1 },
-      },
-      {
-        id: 'power-books',
-        label: 'Books, bargains, or blood.',
-        classWeights: { wizard: 2, warlock: 2, sorcerer: 2 },
-        speciesWeights: { tiefling: 1, gnome: 1 },
-      },
+      { title: 'Training and grit', subtitle: 'Years of practice', points: { Fighter: 2, Monk: 2, Rogue: 2, Ranger: 1 } },
+      { title: 'Faith or a sacred oath', subtitle: 'A god or a promise you keep', points: { Cleric: 3, Paladin: 3 } },
+      { title: 'Books and study', subtitle: 'You figured magic out', points: { Wizard: 4 } },
+      { title: 'Born with it', subtitle: "It's in your blood", points: { Sorcerer: 4 } },
+      { title: 'A deal you made', subtitle: 'Someone powerful owes you', points: { Warlock: 4 } },
+      { title: 'Nature itself', subtitle: 'Forests, beasts, storms', points: { Druid: 3, Ranger: 2 } },
+      { title: 'Pure fury', subtitle: 'Emotion turned into strength', points: { Barbarian: 4 } },
+      { title: 'Charm and art', subtitle: 'Music, stories, and nerve', points: { Bard: 4 } },
     ],
   },
   {
-    id: 'weapon',
-    prompt: 'Pick your weapon.',
+    id: 'q3',
+    label: 'How much do you want to keep track of?',
     options: [
-      {
-        id: 'weapon-big',
-        label: 'Something huge that needs both hands.',
-        classWeights: { barbarian: 2, fighter: 2, paladin: 2 },
-        speciesWeights: { goliath: 1, orc: 1 },
-      },
-      {
-        id: 'weapon-bow',
-        label: 'A bow, from very far away.',
-        classWeights: { ranger: 3, fighter: 1, rogue: 1 },
-        speciesWeights: { elf: 1 },
-      },
-      {
-        id: 'weapon-fists',
-        label: 'My own two fists.',
-        classWeights: { monk: 3, barbarian: 1 },
-        speciesWeights: { human: 1, goliath: 1 },
-      },
-      {
-        id: 'weapon-wand',
-        label: 'A wand, a staff, or a withering stare.',
-        classWeights: { wizard: 2, sorcerer: 2, warlock: 2, druid: 1, cleric: 1 },
-        speciesWeights: { gnome: 1, tiefling: 1 },
-      },
+      { title: 'Keep it simple', subtitle: 'A few big moves, mostly hitting things', points: { Barbarian: 2, Fighter: 2, Rogue: 1 } },
+      { title: 'Some choices', subtitle: 'A handful of tricks each fight', points: { Paladin: 1, Ranger: 1, Monk: 1, Warlock: 1, Rogue: 1 } },
+      { title: 'Give me all the options', subtitle: 'Lots of spells and decisions', points: { Wizard: 2, Cleric: 1, Druid: 2, Bard: 1, Sorcerer: 1 } },
     ],
   },
   {
-    id: 'role',
-    prompt: 'What is your job in the party?',
+    id: 'q4',
+    label: "A free afternoon in town. You're…",
     options: [
-      {
-        id: 'role-tank',
-        label: 'Front line. I take the hits.',
-        classWeights: { fighter: 2, barbarian: 2, paladin: 2 },
-        speciesWeights: { dwarf: 1, goliath: 1 },
-      },
-      {
-        id: 'role-heal',
-        label: 'I keep everyone alive.',
-        classWeights: { cleric: 3, druid: 2, paladin: 1, bard: 1 },
-        speciesWeights: { human: 1, dwarf: 1 },
-      },
-      {
-        id: 'role-solve',
-        label: 'I solve the problems nobody else can.',
-        classWeights: { rogue: 2, bard: 2, wizard: 1, ranger: 1 },
-        speciesWeights: { halfling: 1, gnome: 1 },
-      },
-      {
-        id: 'role-blast',
-        label: 'I delete things from a safe distance.',
-        classWeights: { wizard: 2, sorcerer: 2, warlock: 2, ranger: 1 },
-        speciesWeights: { tiefling: 1, dragonborn: 1 },
-      },
+      { title: 'Talking people into things', subtitle: 'Deals, rumors, free drinks', points: { Bard: 2, Warlock: 1, Sorcerer: 1, Paladin: 1 } },
+      { title: 'In the library or temple', subtitle: 'Reading, praying, researching', points: { Wizard: 2, Cleric: 2 } },
+      { title: 'Out past the city walls', subtitle: 'Woods and wild places', points: { Ranger: 2, Druid: 2 } },
+      { title: 'In the tavern brawl', subtitle: 'Arm-wrestling, sparring', points: { Barbarian: 2, Fighter: 2, Monk: 1 } },
+      { title: "Somewhere you shouldn't be", subtitle: 'Locked doors are a suggestion', points: { Rogue: 3, Warlock: 1 } },
     ],
   },
   {
-    id: 'heart',
-    prompt: 'Who are you, deep down?',
+    id: 'q5',
+    label: 'Pick a body type for your hero',
     options: [
-      {
-        id: 'heart-loyal',
-        label: 'A loyal friend who finishes what they start.',
-        classWeights: { paladin: 2, fighter: 2, cleric: 1, ranger: 1 },
-        speciesWeights: { human: 1, dwarf: 1, halfling: 1 },
-      },
-      {
-        id: 'heart-curious',
-        label: 'A curious soul who has to know how everything works.',
-        classWeights: { wizard: 2, bard: 1, druid: 1, cleric: 1 },
-        speciesWeights: { gnome: 2, elf: 1 },
-      },
-      {
-        id: 'heart-wanderer',
-        label: 'A wanderer with a past I do not talk about.',
-        classWeights: { rogue: 2, ranger: 2, warlock: 1, monk: 1 },
-        speciesWeights: { tiefling: 1, elf: 1 },
-      },
-      {
-        id: 'heart-storm',
-        label: 'A storm looking for somewhere to break.',
-        classWeights: { barbarian: 2, sorcerer: 2, warlock: 1 },
-        speciesWeights: { dragonborn: 1, orc: 1 },
-      },
+      { title: 'Big and imposing', subtitle: 'Towering or tusked', species: ['Goliath', 'Orc'] },
+      { title: 'Small and quick', subtitle: 'Easy to overlook', species: ['Halfling', 'Gnome'] },
+      { title: 'Graceful and ancient', subtitle: 'Long-lived and otherworldly', species: ['Elf', 'Tiefling'] },
+      { title: 'Sturdy and stubborn', subtitle: 'Built like a mountain', species: ['Dwarf', 'Dragonborn'] },
+      { title: 'Just a regular person', subtitle: 'An everyday human', species: ['Human'] },
     ],
   },
   {
-    id: 'tone',
-    prompt: 'What should tonight feel like for you?',
+    id: 'q6',
+    label: 'How do you want to play them?',
     options: [
-      {
-        id: 'tone-heroic',
-        label: 'Heroic. Big swings and bright banners.',
-        classWeights: { paladin: 1, fighter: 1, cleric: 1 },
-        tone: 'heroic',
-      },
-      {
-        id: 'tone-grim',
-        label: 'Grim. Mud, blood, and hard choices.',
-        classWeights: { barbarian: 1, warlock: 1, ranger: 1 },
-        tone: 'grim',
-      },
-      {
-        id: 'tone-mischievous',
-        label: 'Mischievous. Chaos, jokes, and loot.',
-        classWeights: { rogue: 1, bard: 1, sorcerer: 1 },
-        tone: 'mischievous',
-      },
-      {
-        id: 'tone-mysterious',
-        label: 'Mysterious. Secrets, whispers, and old magic.',
-        classWeights: { wizard: 1, druid: 1, warlock: 1 },
-        tone: 'mysterious',
-      },
+      { title: 'The noble hero', subtitle: 'Does the right thing, loudly', tone: 'noble' },
+      { title: 'The lovable scoundrel', subtitle: 'Charming, a little shady', tone: 'scoundrel' },
+      { title: 'The mysterious stranger', subtitle: 'Says little, knows more', tone: 'mystery' },
+      { title: 'The comic relief', subtitle: 'Here for a good time', tone: 'comic' },
     ],
   },
 ]

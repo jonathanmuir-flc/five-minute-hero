@@ -17,32 +17,54 @@ npm run dev        # http://localhost:5173/five-minute-hero/
 Other scripts:
 
 ```bash
-npm test           # Vitest unit tests for the pure logic in src/lib
+npm test           # Vitest: golden cases, rules, and parity with the prototype
 npm run build      # type-check with tsc, then bundle into dist/
 npm run preview    # serve the production build locally
 ```
 
 ## How it is put together
 
-| Folder            | What lives there                                                        |
-| ----------------- | ----------------------------------------------------------------------- |
-| `src/data/`       | Typed content: classes, species, questions and weights, hooks, names    |
-| `src/lib/`        | Pure functions with tests: `scoreClasses`, `pickSpecies`, `assignStats`, `buildSummary`, `buildCharacter` |
-| `src/components/` | `Question`, `CharacterSheet`, `CopyButton`, `DownloadButton`            |
-| `src/types/`      | `Character`, the shape of the JSON file the DM (and the AI DM) will read |
-| `src/App.tsx`     | The three screens: intro, quiz, sheet. All state lives here             |
+| Folder            | What lives there                                                                 |
+| ----------------- | -------------------------------------------------------------------------------- |
+| `src/data/`       | The content: questions and scoring weights, classes, species fit, hooks, names   |
+| `src/lib/`        | Pure functions with tests: `scoreClasses`, `pickSpecies`, `assignStats`, `buildHero`, `buildSummary` |
+| `src/components/` | `Question`, `CharacterSheet`, `CopyButton`, `DownloadButton`                     |
+| `src/types/`      | `Character`, the shape of the JSON file for the DM (and the AI DM)               |
+| `src/App.tsx`     | The single page: six questions, the names box, and the live character sheet      |
 
-The quiz is deterministic: the same six answers always produce the same
-character, name suggestions and story hook. Ability scores use the standard
-array (15, 14, 13, 12, 10, 8) dealt out in each class's priority order.
+It is one page. The sheet appears once at least four questions are answered.
+Before that it shows "(n of 6 answered)".
 
-### Note on the data
+### How a hero is built
 
-`reference/hero-picker.html` was meant to be the source of truth for the
-questions, weights, hooks, names and copy format. It was missing when this
-was built, so everything in `src/data/` is a clearly labelled first pass.
-Swapping in the prototype's values is a data-only change; the logic and UI
-do not need to move.
+1. Questions 1 to 4 add points to classes. Question 5 picks a body type (which
+   lists species) and question 6 picks the tone.
+2. Classes are ranked by points, ties broken alphabetically. The top class wins.
+3. The species is the first one in the question 5 answer that suits the class.
+   If none suits it, the first one is used. With no answer, the hero is Human.
+4. The standard array (15, 14, 13, 12, 10, 8) is dealt out in the class's
+   ability priority order. Background ability bonuses are not applied. The DM
+   does that.
+5. If no name is typed, the suggested name is `NAMES[species][class name length % 2]`.
+6. "Try <Class> instead" switches to the highest-ranked other class.
+   Changing any answer clears that choice.
+
+### Content comes from the prototype
+
+`reference/hero-picker.html` is the source of truth for all content: question
+text, scoring weights, classes, species fit, hooks, names and the Discord copy
+format. Copy values from it; do not reword them. `src/lib/prototype.test.ts`
+runs the prototype's own data and scoring code and checks this app against it,
+for every possible set of answers.
+
+## Output
+
+- **Copy for Discord** puts plain labelled lines on the clipboard (PLAYER,
+  CHARACTER, VIBE, SCORES, HOOK, DM). If the browser blocks clipboard access,
+  the visible text box is selected so the player can copy by hand.
+- **Download for the DM** saves the `Character` JSON from
+  `src/types/character.ts`. Scores are listed STR to CHA. This file is meant for
+  the AI DM.
 
 ## Deploy to GitHub Pages
 

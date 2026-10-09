@@ -1,32 +1,17 @@
-import { CLASSES, type ClassId } from '../data/classes'
-import type { AbilityKey, AbilityScores } from '../types/character'
-
-/** The standard array from the SRD, best to worst. */
-export const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8] as const
-
-/** Order the six abilities are shown in on a sheet. */
-export const ABILITY_ORDER: AbilityKey[] = ['str', 'dex', 'con', 'int', 'wis', 'cha']
-
-export const ABILITY_LABEL: Record<AbilityKey, string> = {
-  str: 'STR',
-  dex: 'DEX',
-  con: 'CON',
-  int: 'INT',
-  wis: 'WIS',
-  cha: 'CHA',
-}
+import { ABILITIES, ABILITY_KEY, STANDARD_ARRAY, type Ability } from '../data/abilities'
+import { CLASSES, type ClassName } from '../data/classes'
+import type { AbilityScores } from '../types/character'
 
 /**
- * Deal the standard array out in the class's priority order:
- * the class's most important ability gets 15, the next gets 14, and so on.
+ * Deal the standard array (15, 14, 13, 12, 10, 8) out in the class's
+ * priority order. No background bonuses: the DM applies those.
+ * The result is built in STR to CHA order so the DM's JSON reads like a sheet.
  */
-export function assignStats(classId: ClassId): AbilityScores {
-  const priority = CLASSES[classId].statPriority
-  // Build the object in STR..CHA order so the JSON file reads like a sheet,
-  // whatever order the class's priority list is in.
+export function assignStats(className: ClassName): AbilityScores {
+  const priority = CLASSES[className].pri
   const scores = {} as AbilityScores
-  for (const ability of ABILITY_ORDER) {
-    scores[ability] = STANDARD_ARRAY[priority.indexOf(ability)]
+  for (const ability of ABILITIES) {
+    scores[ABILITY_KEY[ability]] = STANDARD_ARRAY[priority.indexOf(ability)]
   }
   return scores
 }
@@ -39,4 +24,8 @@ export function abilityModifier(score: number): number {
 /** "+3" or "-1", the way sheets print modifiers. */
 export function formatModifier(mod: number): string {
   return mod >= 0 ? `+${mod}` : `${mod}`
+}
+
+export function scoreFor(scores: AbilityScores, ability: Ability): number {
+  return scores[ABILITY_KEY[ability]]
 }

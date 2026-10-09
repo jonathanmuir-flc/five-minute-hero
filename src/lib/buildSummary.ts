@@ -1,27 +1,22 @@
+import { ABILITIES } from '../data/abilities'
+import { CLASSES, type ClassName } from '../data/classes'
+import { TONE_LABEL } from '../data/species'
 import type { Character } from '../types/character'
-import { ABILITY_LABEL, ABILITY_ORDER, abilityModifier, formatModifier } from './assignStats'
-import { PROFICIENCY_BONUS_LEVEL_5, characterHitPoints } from './derive'
-
-function capitalise(word: string): string {
-  return word.charAt(0).toUpperCase() + word.slice(1)
-}
+import { scoreFor } from './assignStats'
 
 /**
- * The text that gets pasted into Discord. Uses Discord's markdown
- * (**bold**) and keeps to a few short lines so it reads well on a phone.
+ * The "Copy for Discord" text. The line format and labels match the
+ * prototype exactly, including the closing DM line.
  */
 export function buildSummary(character: Character): string {
-  const scores = ABILITY_ORDER.map((key) => {
-    const score = character.scores[key]
-    return `${ABILITY_LABEL[key]} ${score} (${formatModifier(abilityModifier(score))})`
-  }).join(' · ')
-
-  const lines = [
-    `**${character.name}** — Level ${character.level} ${character.species} ${character.class} (${character.background})`,
-    scores,
-    `HP ${characterHitPoints(character)} · Proficiency +${PROFICIENCY_BONUS_LEVEL_5} · Tone: ${capitalise(character.tone)}`,
-    `*${character.hook}*`,
-  ]
-  if (character.player.trim()) lines.push(`Played by ${character.player.trim()}`)
-  return lines.join('\n')
+  const info = CLASSES[character.class as ClassName]
+  const scores = ABILITIES.map((a) => `${a} ${scoreFor(character.scores, a)}`).join(', ')
+  return [
+    `PLAYER: ${character.player || '(your name)'}`,
+    `CHARACTER: ${character.name}, level ${character.level} ${character.species} ${character.class} (${character.background} background)`,
+    `VIBE: ${info.pitch}. Played as ${TONE_LABEL[character.tone]}.`,
+    `SCORES (standard array): ${scores}`,
+    `HOOK: ${character.hook}`,
+    'DM: please finish the sheet (background bonuses, HP, gear, spells) from the SRD.',
+  ].join('\n')
 }

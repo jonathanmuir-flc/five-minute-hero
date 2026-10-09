@@ -1,29 +1,28 @@
-import { CLASS_IDS, type ClassId } from '../data/classes'
-import type { AnswerOption } from '../data/questions'
+import { CLASS_NAMES, type ClassName } from '../data/classes'
+import { SCORING_QUESTION_IDS } from '../data/questions'
+import { chosenOption, type Answers } from './answers'
 
 export interface ClassScore {
-  classId: ClassId
-  score: number
+  className: ClassName
+  points: number
 }
 
 /**
- * Add up every answer's class weights. Returns all twelve classes, highest
- * score first. Ties keep the alphabetical order of CLASS_IDS so the result
- * is stable.
+ * Add up class points from q1-q4 only (q5 picks species, q6 picks tone).
+ * Returns all twelve classes sorted by points descending, ties alphabetical.
  */
-export function scoreClasses(answers: AnswerOption[]): ClassScore[] {
-  const totals: Record<ClassId, number> = Object.fromEntries(
-    CLASS_IDS.map((id) => [id, 0]),
-  ) as Record<ClassId, number>
+export function scoreClasses(answers: Answers): ClassScore[] {
+  const totals = Object.fromEntries(CLASS_NAMES.map((name) => [name, 0])) as Record<ClassName, number>
 
-  for (const answer of answers) {
-    // TS pattern: `Object.entries` loses the key type, so we cast it back.
-    for (const [id, weight] of Object.entries(answer.classWeights) as [ClassId, number][]) {
-      totals[id] += weight
+  for (const id of SCORING_QUESTION_IDS) {
+    const points = chosenOption(answers, id)?.points
+    if (!points) continue
+    for (const [name, value] of Object.entries(points) as [ClassName, number][]) {
+      totals[name] += value
     }
   }
 
-  return CLASS_IDS.map((classId) => ({ classId, score: totals[classId] })).sort(
-    (a, b) => b.score - a.score,
+  return CLASS_NAMES.map((className) => ({ className, points: totals[className] })).sort(
+    (a, b) => b.points - a.points || a.className.localeCompare(b.className),
   )
 }

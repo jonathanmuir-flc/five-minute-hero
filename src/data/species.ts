@@ -1,89 +1,54 @@
-// PLACEHOLDER DATA: SRD 5.2 species. See the note at the top of classes.ts.
-import type { SpeciesId } from './classes'
+// Content source of truth: reference/hero-picker.html (SPECIES_FIT, HOOKS, NAMES).
+import type { Tone } from '../types/character'
+import type { ClassName } from './classes'
 
-export interface SpeciesInfo {
-  id: SpeciesId
-  name: string
-  size: 'Small' | 'Medium'
-  speed: number
-  /** Short trait list for the sheet. */
-  traits: string[]
+export type SpeciesName =
+  | 'Goliath'
+  | 'Orc'
+  | 'Halfling'
+  | 'Gnome'
+  | 'Elf'
+  | 'Tiefling'
+  | 'Dwarf'
+  | 'Dragonborn'
+  | 'Human'
+
+/** Which classes each species suits. Human is not listed: it fits nothing in particular. */
+export const SPECIES_FIT: Partial<Record<SpeciesName, readonly ClassName[]>> = {
+  Goliath: ['Barbarian', 'Fighter', 'Paladin'],
+  Orc: ['Barbarian', 'Fighter', 'Ranger'],
+  Halfling: ['Rogue', 'Bard', 'Ranger', 'Monk'],
+  Gnome: ['Wizard', 'Rogue', 'Bard'],
+  Elf: ['Wizard', 'Ranger', 'Druid', 'Monk'],
+  Tiefling: ['Warlock', 'Sorcerer', 'Bard'],
+  Dwarf: ['Cleric', 'Fighter', 'Paladin'],
+  Dragonborn: ['Paladin', 'Sorcerer', 'Fighter'],
 }
 
-export const SPECIES_IDS: SpeciesId[] = [
-  'dragonborn',
-  'dwarf',
-  'elf',
-  'gnome',
-  'goliath',
-  'halfling',
-  'human',
-  'orc',
-  'tiefling',
-]
+/** Two suggested names per species. The class name's length picks which one. */
+export const NAMES: Record<SpeciesName, readonly [string, string]> = {
+  Goliath: ['Kavaki', 'Thalai'],
+  Orc: ['Grusk', 'Varra'],
+  Halfling: ['Pip Tealeaf', 'Wren Underbough'],
+  Gnome: ['Fizzwick', 'Nissa Brightcog'],
+  Elf: ['Aelar', 'Sylvara'],
+  Tiefling: ['Mordai', 'Vex'],
+  Dwarf: ['Brunna Ironfell', 'Tordek'],
+  Dragonborn: ['Arjhan', 'Sora Kerrhylon'],
+  Human: ['Mara Voss', 'Tobin Hale'],
+}
 
-export const SPECIES: Record<SpeciesId, SpeciesInfo> = {
-  dragonborn: {
-    id: 'dragonborn',
-    name: 'Dragonborn',
-    size: 'Medium',
-    speed: 30,
-    traits: ['Draconic Ancestry', 'Breath Weapon', 'Damage Resistance', 'Darkvision 60 ft.'],
-  },
-  dwarf: {
-    id: 'dwarf',
-    name: 'Dwarf',
-    size: 'Medium',
-    speed: 30,
-    traits: ['Darkvision 120 ft.', 'Dwarven Resilience', 'Dwarven Toughness', 'Stonecunning'],
-  },
-  elf: {
-    id: 'elf',
-    name: 'Elf',
-    size: 'Medium',
-    speed: 30,
-    traits: ['Darkvision 60 ft.', 'Elven Lineage', 'Fey Ancestry', 'Keen Senses', 'Trance'],
-  },
-  gnome: {
-    id: 'gnome',
-    name: 'Gnome',
-    size: 'Small',
-    speed: 30,
-    traits: ['Darkvision 60 ft.', 'Gnomish Cunning', 'Gnomish Lineage'],
-  },
-  goliath: {
-    id: 'goliath',
-    name: 'Goliath',
-    size: 'Medium',
-    speed: 35,
-    traits: ['Giant Ancestry', 'Large Form', 'Powerful Build'],
-  },
-  halfling: {
-    id: 'halfling',
-    name: 'Halfling',
-    size: 'Small',
-    speed: 30,
-    traits: ['Brave', 'Halfling Nimbleness', 'Luck', 'Naturally Stealthy'],
-  },
-  human: {
-    id: 'human',
-    name: 'Human',
-    size: 'Medium',
-    speed: 30,
-    traits: ['Resourceful', 'Skillful', 'Versatile'],
-  },
-  orc: {
-    id: 'orc',
-    name: 'Orc',
-    size: 'Medium',
-    speed: 30,
-    traits: ['Adrenaline Rush', 'Darkvision 120 ft.', 'Relentless Endurance'],
-  },
-  tiefling: {
-    id: 'tiefling',
-    name: 'Tiefling',
-    size: 'Medium',
-    speed: 30,
-    traits: ['Darkvision 60 ft.', 'Fiendish Legacy', 'Otherworldly Presence'],
-  },
+export const HOOKS: Record<Tone, string> = {
+  noble: "Swore to protect someone who is now in danger, and won't rest until they're safe.",
+  scoundrel: 'Owes a large debt to the wrong people and is hoping this adventure pays it off.',
+  mystery: "Carries a sealed letter they've never opened and won't explain.",
+  comic: "Is absolutely certain they're the chosen one of a prophecy nobody else has heard of.",
+}
+
+/** How the tone reads in the "Played as ..." part of the Discord text. */
+export const TONE_LABEL: Record<Tone, string> = {
+  noble: 'the noble hero',
+  scoundrel: 'a lovable scoundrel',
+  mystery: 'a mysterious stranger',
+  comic: 'the comic relief',
 }

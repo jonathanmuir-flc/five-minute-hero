@@ -1,15 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CharacterSheet } from './components/CharacterSheet'
 import { Question } from './components/Question'
-import { QUESTIONS, type AnswerOption } from './data/questions'
-import { CLASSES, type SpeciesId } from './data/classes'
-import { SPECIES_IDS } from './data/species'
-import { buildCharacter, suggestNames } from './lib/buildCharacter'
-import { pickSpecies } from './lib/pickSpecies'
-import { scoreClasses } from './lib/scoreClasses'
-import { seedFromAnswers } from './lib/seed'
+import type { ClassName } from './data/classes'
+import { QUESTIONS, type QuestionId } from './data/questions'
+import { answeredCount, type Answers } from './lib/answers'
+import { buildHero } from './lib/buildHero'
 
-type Step = 'intro' | 'quiz' | 'sheet'
 type Theme = 'light' | 'dark' | 'auto'
 
 const THEME_KEY = 'five-minute-hero:theme'
@@ -25,15 +21,11 @@ function readStoredTheme(): Theme {
 }
 
 export default function App() {
-  // React pattern: all the app's state lives here at the top, and flows
-  // *down* into components through props. Events flow back *up* through
-  // callbacks. This is "lifting state up".
-  const [step, setStep] = useState<Step>('intro')
+  const [answers, setAnswers] = useState<Answers>({})
+  // A class the player switched to with "Try X instead"; null means the best match.
+  const [override, setOverride] = useState<ClassName | null>(null)
   const [player, setPlayer] = useState('')
-  const [index, setIndex] = useState(0)
-  // Which option id the player picked for each question id.
-  const [picked, setPicked] = useState<Record<string, string>>({})
-  const [chosenName, setChosenName] = useState<string | undefined>(undefined)
+  const [charName, setCharName] = useState('')
   const [theme, setTheme] = useState<Theme>(readStoredTheme)
 
   // Apply the theme to <html data-theme="..."> so CSS can react to it.
@@ -49,131 +41,83 @@ export default function App() {
     }
   }, [theme])
 
-  // React pattern: useMemo caches a computed value and only recomputes it
-  // when one of the listed dependencies changes.
-  const answers: AnswerOption[] = useMemo(
-    () =>
-      QUESTIONS.flatMap((q) => {
-        const option = q.options.find((o) => o.id === picked[q.id])
-        return option ? [option] : []
-      }),
-    [picked],
-  )
+  const hero = useMemo(() => buildHero(answers, { player, charName, override }), [answers, player, charName, override])
 
-  const complete = answers.length === QUESTIONS.length
-
-  const nameSuggestions = useMemo(() => {
-    if (!complete) return []
-    const classId = scoreClasses(answers)[0].classId
-    const speciesId: SpeciesId = pickSpecies(answers, classId)
-    return suggestNames(speciesId, seedFromAnswers(answers))
-  }, [answers, complete])
-
-  const character = useMemo(
-    () => (complete ? buildCharacter(answers, { player, name: chosenName }) : null),
-    [answers, complete, player, chosenName],
-  )
-
-  const current = QUESTIONS[index]
-  const currentPick = picked[current.id]
-
-  function select(optionId: string) {
-    // React pattern: never mutate state; make a new object with the change.
-    setPicked((prev) => ({ ...prev, [current.id]: optionId }))
-  }
-
-  function next() {
-    if (index < QUESTIONS.length - 1) setIndex(index + 1)
-    else setStep('sheet')
-  }
-
-  function restart() {
-    setPicked({})
-    setChosenName(undefined)
-    setIndex(0)
-    setStep('intro')
+  function select(id: QuestionId, index: number) {
+    setAnswers((prev) => ({ ...prev, [id]: index }))
+    // Changing any answer clears the "Try X instead" override.
+    setOverride(null)
   }
 
   function cycleTheme() {
     setTheme((t) => (t === 'auto' ? 'dark' : t === 'dark' ? 'light' : 'auto'))
   }
 
-  const themeLabel = theme === 'auto' ? 'Theme: auto' : theme === 'dark' ? 'Theme: dark' : 'Theme: light'
-
   return (
-    <div className="app">
-      <header className="masthead">
-        <div className="masthead__inner">
-          <h1 className="masthead__title">
-            <span className="masthead__five">Five-Minute</span> Hero
-          </h1>
-          <button type="button" className="btn btn--ghost btn--small" onClick={cycleTheme} aria-live="polite">
-            {themeLabel}
+    <>
+      <main className="wrap">
+        <div className="topbar">
+          <p className="eyebrow">Game night · Level 5 one-shot</p>
+          <button type="button" className="ghost small" onClick={cycleTheme} aria-live="polite">
+            Theme: {theme}
           </button>
         </div>
-      </header>
+        <header className="head">
+          <h1>Five-Minute Hero</h1>
+          <p className="lede">
+            Answer six quick questions and you'll get a ready-to-play character built from the standard D&amp;D rules.
+            Copy the result and paste it into our Discord before the game. The DM handles the fine print.
+          </p>
+        </header>
 
-      <main className="main">
-        {step === 'intro' && (
-          <section className="intro">
-            <p className="intro__lead">
-              Six quick questions. One ready-to-play level 5 character, built only from the free D&amp;D rules. Paste
-              it into Discord and you are done.
-            </p>
-            <label className="field">
-              <span>Your name (so the DM knows whose sheet this is)</span>
+        <form className="quiz" onSubmit={(e) => e.preventDefault()} noValidate>
+          {QUESTIONS.map((q, i) => (
+            <Question
+              key={q.id}
+              question={q}
+              number={i + 1}
+              total={QUESTIONS.length}
+              selected={answers[q.id]}
+              onSelect={(index) => select(q.id, index)}
+            />
+          ))}
+        </form>
+
+        <fieldset>
+          <legend>
+            <span>LAST STEP</span>Names
+          </legend>
+          <div className="names">
+            <label htmlFor="player">
+              Your name
               <input
                 type="text"
+                id="player"
+                autoComplete="given-name"
+                placeholder="e.g. Sam"
                 value={player}
                 onChange={(e) => setPlayer(e.target.value)}
-                placeholder="e.g. Jon"
-                autoComplete="name"
               />
             </label>
-            <button type="button" className="btn btn--primary btn--large" onClick={() => setStep('quiz')}>
-              Begin
-            </button>
-            <p className="intro__note">
-              {Object.keys(CLASSES).length} classes · {SPECIES_IDS.length} species · standard array · no dice required
-            </p>
-          </section>
-        )}
+            <label htmlFor="charname">
+              Character name (optional)
+              <input
+                type="text"
+                id="charname"
+                placeholder="Leave blank and we'll suggest one"
+                value={charName}
+                onChange={(e) => setCharName(e.target.value)}
+              />
+            </label>
+          </div>
+        </fieldset>
 
-        {step === 'quiz' && (
-          <>
-            <div className="progress" aria-hidden="true">
-              <div className="progress__bar" style={{ width: `${((index + 1) / QUESTIONS.length) * 100}%` }} />
-            </div>
-            <Question
-              question={current}
-              number={index + 1}
-              total={QUESTIONS.length}
-              selectedId={currentPick}
-              onSelect={select}
-            />
-            <div className="quiz__nav">
-              <button
-                type="button"
-                className="btn btn--ghost"
-                onClick={() => (index === 0 ? setStep('intro') : setIndex(index - 1))}
-              >
-                Back
-              </button>
-              <button type="button" className="btn btn--primary" onClick={next} disabled={!currentPick}>
-                {index === QUESTIONS.length - 1 ? 'Reveal my hero' : 'Next'}
-              </button>
-            </div>
-          </>
-        )}
-
-        {step === 'sheet' && character && (
-          <CharacterSheet
-            character={character}
-            nameSuggestions={nameSuggestions}
-            onPickName={setChosenName}
-            onRestart={restart}
-          />
-        )}
+        <CharacterSheet
+          hero={hero}
+          answered={answeredCount(answers)}
+          onSwap={() => hero && setOverride(hero.runnerUp)}
+          onReset={() => setOverride(null)}
+        />
       </main>
 
       <footer className="footer">
@@ -185,6 +129,6 @@ export default function App() {
           .
         </p>
       </footer>
-    </div>
+    </>
   )
 }

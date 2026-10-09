@@ -12,7 +12,7 @@ export type AbilityKey = 'str' | 'dex' | 'con' | 'int' | 'wis' | 'cha'
 export type AbilityScores = Record<AbilityKey, number>
 
 /** The mood the player asked for; it picks the story hook. */
-export type Tone = 'heroic' | 'grim' | 'mischievous' | 'mysterious'
+export type Tone = 'noble' | 'scoundrel' | 'mystery' | 'comic'
 
 export interface Character {
   /** The real person's name, so the DM knows whose sheet this is. */
