@@ -1,72 +1,31 @@
-// Build the Discord assets from their sources.
+// Regenerate the Discord assets from the committed PNGs.
 // Run from the repo root: npm run discord-assets  (or: node discord-assets/build.mjs)
 //
-// - Pixel assets (emoji, server icon, event cover) start from the PixelLab
-//   generations saved in source/ (see source/pixellab.json). The build snaps
-//   them to the shared palette, removes stray pixels, adds a dark outline and a
-//   light rim where asked, and upscales with nearest-neighbor only.
-// - The event cover gets its title stamped in Silkscreen (OFL) at art scale.
-// - The Hermes DM avatar is a vector SVG in avatar/ (gitignored). It is
-//   rendered to PNG only if the SVG is present on this machine.
-import { readFileSync, writeFileSync, existsSync, statSync, mkdirSync } from 'node:fs';
+// Every asset is pixel art that was upscaled with nearest-neighbor only. This
+// script reads each PNG back down to its art-scale grid, checks that every art
+// pixel is a clean block, snaps the colors to the shared palette
+// (palette.json), and writes the exports again. Running it on unchanged files
+// leaves them byte-for-byte the same. It exits with an error if a PNG is not a
+// clean nearest-neighbor upscale or if an emoji is over Discord's 256 KB limit.
+import { readFileSync, writeFileSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PNG } from 'pngjs';
-import { Resvg } from '@resvg/resvg-js';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
-const FONT = join(ROOT, 'fonts', 'Silkscreen-Regular.ttf');
 const EMOJI_LIMIT = 256 * 1024;
 
 const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 const PALETTE = Object.fromEntries(
   Object.entries(JSON.parse(readFileSync(join(ROOT, 'palette.json'), 'utf8'))).map(([k, v]) => [k, hex(v)]),
 );
-const DARK = [PALETTE.black, PALETTE.ink];
-// One step lighter, used for the rim on the lit (top-left) side.
-const LIGHTER = {
-  pineDeep: 'pine', pine: 'pineMid', pineMid: 'pineLeaf', pineLeaf: 'jade',
-  brassDark: 'brassMid', brassMid: 'brass', brass: 'paleGold', ash: 'bone', red: 'redLight',
-};
 
-// Small hand fixes on top of a generation, as [x, y, palette name] at art scale.
-const PATCHES = {
-  // The generated tiny die had an "o" on it: clear its face and draw a 1.
-  nat1: [
-    ...[24, 25, 26, 27, 28].flatMap((x) => [24, 25, 26, 27].map((y) => [x, y, 'brass'])),
-    [26, 24, 'ink'], [25, 25, 'ink'], [26, 25, 'ink'], [26, 26, 'ink'], [26, 27, 'ink'], [25, 27, 'ink'], [27, 27, 'ink'],
-  ],
-};
-
-// Palette subsets per asset, so a generated orange snaps to brass, not to potion red.
-const DARKS = ['black', 'ink'];
-const BRASS = ['brassDark', 'brassMid', 'brass', 'paleGold'];
-const PINE = ['pineDeep', 'pine', 'pineMid', 'pineLeaf', 'jade'];
-const USE = {
-  nat20: [...DARKS, ...BRASS],
-  nat1: [...DARKS, ...BRASS, 'ash', 'bone', 'jade'],
-  pause: [...DARKS, ...PINE],
-  gold: [...DARKS, ...BRASS],
-  boss: [...DARKS, ...PINE, ...BRASS, 'bone'],
-  potion: [...DARKS, ...BRASS, 'ash', 'bone', 'red', 'redLight'],
-  rest: [...DARKS, 'brassDark', 'brass', 'paleGold', 'bone'], // no brassMid, so the flame edge stays dark against the glass
-};
-
-// Each pixel asset: its PixelLab source, cleanup options and exports.
-const PIXEL = [
-  ...['nat20', 'nat1', 'pause', 'gold', 'boss', 'potion', 'rest'].map((n) => ({
-    src: `emoji-${n}.png`, outline: true, rim: true, out: [[`emoji/${n}.png`, 4]],
-    patch: PATCHES[n], use: USE[n],
-  })),
-  { src: 'server-icon.png', outline: false, rim: false, use: [...DARKS, ...BRASS, ...PINE], out: [['server-icon.png', 8]] },
-  {
-    src: 'island-of-trials.png', outline: false, rim: false, use: [...DARKS, ...PINE, ...BRASS, 'ash'],
-    out: [['event/island-of-trials.png', 4], ['event/island-of-trials@2x.png', 8]],
-    text: [
-      { value: 'GAME NIGHT ·', x: 9, y: 26, color: 'brass' },
-      { value: 'ISLAND OF TRIALS', x: 9, y: 36, color: 'paleGold' },
-    ],
-  },
+// Each asset: the committed PNG, the scale it was exported at, and any
+// additional exports as [file, scale].
+const ASSETS = [
+  ...['nat20', 'nat1', 'pause', 'gold', 'boss', 'potion', 'rest'].map((n) => ({ file: `emoji/${n}.png`, scale: 4 })),
+  { file: 'server-icon.png', scale: 8 },
+  { file: 'event/island-of-trials.png', scale: 4, extra: [['event/island-of-trials@2x.png', 8]] },
 ];
 
 // Nearest palette colour in CIELAB, which matches how different colours look.
@@ -80,74 +39,39 @@ function lab([r, g, b]) {
   return [116 * Y - 16, 500 * (X - Y), 200 * (Y - Z)];
 }
 const LAB = Object.fromEntries(Object.entries(PALETTE).map(([k, c]) => [k, lab(c)]));
-function nearest(rgb, use) {
+function nearest(rgb) {
   const p = lab(rgb);
   let best, bestD = Infinity;
-  for (const name of use) {
-    const c = LAB[name];
+  for (const [name, c] of Object.entries(LAB)) {
     const d = (p[0] - c[0]) ** 2 + (p[1] - c[1]) ** 2 + (p[2] - c[2]) ** 2;
     if (d < bestD) [best, bestD] = [name, d];
   }
   return best;
 }
 
-// Grid of palette names (null = transparent).
-function load(file, use = Object.keys(PALETTE)) {
+// Grid of palette names (null = transparent), read at one pixel per art pixel.
+function load(file, scale) {
   const png = PNG.sync.read(readFileSync(file));
+  if (png.width % scale || png.height % scale) throw new Error(`${file}: ${png.width}x${png.height} is not a multiple of ${scale}`);
+  const px = (x, y) => {
+    const i = (y * png.width + x) * 4;
+    return [png.data[i], png.data[i + 1], png.data[i + 2], png.data[i + 3]];
+  };
   const g = [];
-  for (let y = 0; y < png.height; y++) {
+  for (let y = 0; y < png.height / scale; y++) {
     g.push([]);
-    for (let x = 0; x < png.width; x++) {
-      const i = (y * png.width + x) * 4;
-      g[y].push(png.data[i + 3] < 128 ? null : nearest([png.data[i], png.data[i + 1], png.data[i + 2]], use));
+    for (let x = 0; x < png.width / scale; x++) {
+      const first = px(x * scale, y * scale);
+      for (let dy = 0; dy < scale; dy++)
+        for (let dx = 0; dx < scale; dx++)
+          if (px(x * scale + dx, y * scale + dy).some((v, i) => v !== first[i]))
+            throw new Error(`${file}: art pixel (${x}, ${y}) is not a clean ${scale}x${scale} block`);
+      g[y].push(first[3] < 128 ? null : nearest(first));
     }
   }
   return g;
 }
-const at = (g, x, y) => (y >= 0 && y < g.length && x >= 0 && x < g[0].length ? g[y][x] : null);
-const N4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-const N8 = [...N4, [1, 1], [1, -1], [-1, 1], [-1, -1]];
 
-function removeStrays(g) {
-  for (let y = 0; y < g.length; y++)
-    for (let x = 0; x < g[0].length; x++)
-      if (g[y][x] && N8.every(([dx, dy]) => !at(g, x + dx, y + dy))) g[y][x] = null;
-}
-function addOutline(g) {
-  const isDark = (n) => n === 'black' || n === 'ink';
-  const add = [];
-  for (let y = 0; y < g.length; y++)
-    for (let x = 0; x < g[0].length; x++) {
-      if (g[y][x]) continue;
-      if (N4.some(([dx, dy]) => { const n = at(g, x + dx, y + dy); return n && !isDark(n); })) add.push([x, y]);
-    }
-  for (const [x, y] of add) g[y][x] = 'ink';
-  // Silhouette pixels on the canvas border can't get an outside outline.
-  for (let y = 0; y < g.length; y++)
-    for (let x = 0; x < g[0].length; x++)
-      if (g[y][x] && !isDark(g[y][x]) && (x === 0 || y === 0 || x === g[0].length - 1 || y === g.length - 1)) g[y][x] = 'ink';
-}
-function addRim(g) {
-  const hits = [];
-  for (let y = 0; y < g.length; y++)
-    for (let x = 0; x < g[0].length; x++) {
-      const n = g[y][x];
-      if (!n || !LIGHTER[n]) continue;
-      const lit = [[-1, 0], [0, -1]].some(([dx, dy]) => { const m = at(g, x + dx, y + dy); return !m || m === 'ink' || m === 'black'; });
-      if (lit) hits.push([x, y]);
-    }
-  for (const [x, y] of hits) g[y][x] = LIGHTER[g[y][x]];
-}
-function stampText(g, { value, x, y, color }) {
-  const w = g[0].length, h = g.length;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
-    <text x="${x}" y="${y}" font-family="Silkscreen" font-size="8" fill="#fff">${value}</text></svg>`;
-  const px = new Resvg(svg, { font: { fontFiles: [FONT], loadSystemFonts: false }, shapeRendering: 0, textRendering: 0 }).render().pixels;
-  const hitAt = (xx, yy) => xx >= 0 && yy >= 0 && xx < w && yy < h && px[(yy * w + xx) * 4 + 3] >= 128;
-  // Shadow first (1px down-right in black), then the letters.
-  for (let yy = 0; yy < h; yy++) for (let xx = 0; xx < w; xx++) if (hitAt(xx - 1, yy - 1) && !hitAt(xx, yy)) g[yy][xx] = 'black';
-  for (let yy = 0; yy < h; yy++) for (let xx = 0; xx < w; xx++) if (hitAt(xx, yy)) g[yy][xx] = color;
-}
 function save(g, file, scale) {
   const w = g[0].length * scale, h = g.length * scale;
   const png = new PNG({ width: w, height: h });
@@ -156,19 +80,13 @@ function save(g, file, scale) {
       const n = g[Math.floor(y / scale)][Math.floor(x / scale)];
       png.data.set(n ? [...PALETTE[n], 255] : [0, 0, 0, 0], (y * w + x) * 4);
     }
-  mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, PNG.sync.write(png, { colorType: 6 }));
 }
 
 let failed = false;
-for (const a of PIXEL) {
-  const g = load(join(ROOT, 'source', a.src), a.use);
-  removeStrays(g);
-  for (const [x, y, n] of a.patch ?? []) g[y][x] = n;
-  if (a.outline) addOutline(g);
-  if (a.rim) addRim(g);
-  for (const t of a.text ?? []) stampText(g, t);
-  for (const [out, scale] of a.out) {
+for (const a of ASSETS) {
+  const g = load(join(ROOT, a.file), a.scale);
+  for (const [out, scale] of [[a.file, a.scale], ...(a.extra ?? [])]) {
     const file = join(ROOT, out);
     save(g, file, scale);
     const size = statSync(file).size;
@@ -176,15 +94,6 @@ for (const a of PIXEL) {
     if (tooBig) failed = true;
     console.log(`${tooBig ? 'TOO BIG' : 'ok'}  ${out}  ${g[0].length}x${g.length} x${scale}  ${(size / 1024).toFixed(1)} KB`);
   }
-}
-
-const avatarSvg = join(ROOT, 'avatar', 'hermes-dm.svg');
-if (existsSync(avatarSvg)) {
-  const png = new Resvg(readFileSync(avatarSvg, 'utf8'), { fitTo: { mode: 'width', value: 512 } }).render().asPng();
-  writeFileSync(join(ROOT, 'avatar', 'hermes-dm.png'), png);
-  console.log(`ok  avatar/hermes-dm.png  512x512  ${(png.length / 1024).toFixed(1)} KB  (gitignored)`);
-} else {
-  console.log('skip  avatar/hermes-dm.svg not found (it is gitignored and kept locally)');
 }
 
 if (failed) {

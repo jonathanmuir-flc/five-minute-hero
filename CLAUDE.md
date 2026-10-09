@@ -33,6 +33,28 @@ then the app.
 - Fonts: Young Serif (display), Atkinson Hyperlegible (body), JetBrains Mono (stats and copy box).
 - The theme toggle (auto, dark, light) is kept on top of the prototype's `prefers-color-scheme` tokens.
 
+## Project status & decisions
+
+- **Five-Minute Heroes** is a remote D&D group on Discord. The AI DM will be
+  Hermes Agent (Nous Research) in the Tavern voice channel; the voice/TTS
+  provider is still to be decided. First game night: Fri Oct 30, 12:00 PM,
+  "Island of Trials" (CC BY 4.0 one-shot), level 5 characters.
+- **Quiz app:** live at https://jonathanmuir-flc.github.io/five-minute-hero/. It
+  is a faithful port of `reference/hero-picker.html`. SRD 5.2 only. No
+  background bonuses (the DM applies them). The "Download for the DM" JSON is
+  the format Hermes will read.
+- **Discord server:** #general, #character-sheets, #game-table (pinned guides
+  in each), Tavern + General voice, Avrae for dice (`!r`), and seven custom
+  emoji uploaded (nat20, nat1, pause, gold, boss, potion, rest).
+- **`discord-assets/`** holds the final emoji, server icon, event cover, palette
+  and `build.mjs`. `npm run discord-assets` rebuilds them from the committed
+  PNGs and fails on a dirty upscale or an emoji over 256 KB.
+- **The Hermes DM avatar and the Hermes mascot artwork are kept outside this
+  repo and must never be committed.** The `.gitignore` lists the paths. Do not
+  add raw generations, previews, review screenshots or old attempts either.
+- **Next milestone:** fix the Hermes Agent install (exit code 1; check
+  `~/.hermes/logs/bootstrap-installer.log`), then get it into Discord voice.
+
 ## Commands
 
 ```bash
