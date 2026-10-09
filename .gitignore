@@ -25,3 +25,7 @@ dist-ssr
 
 # Playwright MCP output
 .playwright-mcp
+
+# Third-party mascot reference and avatars derived from it: never commit (public repo)
+reference/hermes-agent.svg
+discord-assets/avatar/
