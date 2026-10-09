@@ -1,0 +1,42 @@
+{
+  "exports": [
+    {
+      "file": "gold.png",
+      "scale": 4
+    }
+  ],
+  "rows": [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    ".........kkkk...................",
+    ".....kkkkbbbbkkkk...............",
+    "....kbbbbbbbbbbbbk..............",
+    "...krbbbbyyybbbbbk..............",
+    "...krrrrrbbbbrrrrk..............",
+    "...krrrrrrrrrrrrrk..............",
+    "...krbbrrrrrrrrbbk..............",
+    "...krrrrrbbbbrrrrk..............",
+    "...krrrrrrrrrrrrrk..............",
+    "...krbbrrrrrrrrbbk..kkkk........",
+    "...krrrrrbbbbrrrrkkkbbbbkkkk....",
+    "...krrrrrrrrrrrrbbbbbbbbbbbbk...",
+    "...krbbrrrrrrrrrbbbbyyybbbbbk...",
+    "...krrrrrbbbbrryyyyybbbbrrrrk...",
+    "...krrrrrrrrrrybbbbbyrrrrrrrk...",
+    "...krbbrrrrrrybbmmmbbyrrrrbbk...",
+    "...krrrrrbbbbybmmmmmbbbbrrrrk...",
+    "...krrrrrrrrybmmyymmmbyrrrrrk...",
+    "...krbbrrrrrybmmmymmmbbrrrbbk...",
+    "...krrrrrbbbbybmmmmmbbbbrrrrk...",
+    "...krrrrrrrrrybbmmmbbbrrrrrrk...",
+    "....kkkrrrrrrrybbbbbbrrrrrkk....",
+    ".......kkkkkkkkybbbbkkkkkk......",
+    "...............kkkkk............",
+    "................................"
+  ]
+}

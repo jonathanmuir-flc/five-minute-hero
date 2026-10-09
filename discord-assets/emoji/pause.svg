@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-  <title>pause: lines-and-veils pause</title>
-  <circle cx="64" cy="64" r="56" fill="#1f4a36" stroke="#4a3410" stroke-width="5"/>
-  <circle cx="64" cy="64" r="48" fill="none" stroke="#d6b25e" stroke-width="6"/>
-  <rect x="42" y="38" width="15" height="52" rx="5" fill="#fae2a0" stroke="#4a3410" stroke-width="4"/>
-  <rect x="71" y="38" width="15" height="52" rx="5" fill="#fae2a0" stroke="#4a3410" stroke-width="4"/>
-</svg>

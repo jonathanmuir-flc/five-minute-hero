@@ -1,0 +1,42 @@
+{
+  "exports": [
+    {
+      "file": "nat20.png",
+      "scale": 4
+    }
+  ],
+  "rows": [
+    "...............kk...............",
+    "..............kybk..............",
+    ".............kyyybk.............",
+    ".............kyyybk.............",
+    ".....kkk....kykkkkbk....kkk.....",
+    "....kyybkkkkkkyyyykkkkkkyybk....",
+    "....kyyyyykkkyyybbykkkyyyybk....",
+    "....kyyyykkyyyyyrbbyykkyyybk....",
+    "....kyykkyyyybbrbrbbbyykkybk....",
+    "....kkkyybbbbbbryrbbbbbyykkk....",
+    "....kkybbbbbbbryyyrbbbbbbykk....",
+    "....kkybbbbbbbryyyrbbbbbbbkk....",
+    "....kkybbbbbbryyyyyrbbbbbbkk....",
+    "..kkykybbbbbryyyyyyrbbbbbbkbkk..",
+    ".kyyykbbbbbbrkkyyykyrbbbbmkyybk.",
+    "kyyyykbbbbbryyykykykrbbbbmkyyybk",
+    "byyyykbbbbryyykyykykyrbbbmkyyyyb",
+    "kbyyykbbbbryykyyykykyrbbbmkyyybk",
+    ".kbbykbmbryyykkkyykyyyrbmmkybbk.",
+    "..kkbkbmbryyyyyyyyyyyyrbmmkbkk..",
+    "....kkbmrrrrrrrrrrrrrrrrmmkk....",
+    "....kkbmmrrrrrrrrrrrrrrrrmkk....",
+    "....kkbmmmrrrrrrrrrrrrrrrrkk....",
+    "....kkkbmmmrrrrrrrrrrrrrrkkk....",
+    "....kyykkbmmrrrrrrrrrrrkkybk....",
+    "....kyyyykkbmrrrrrrrrkkyyybk....",
+    "....kyyybbkkkbrrrrrkkkbbyybk....",
+    "....kbbbkkkkkkbrrrkkkkkkbbbk....",
+    ".....kkk....kbkkkkbk....kkk.....",
+    ".............kyyybk.............",
+    ".............kbyybk.............",
+    "..............kbbk.............."
+  ]
+}

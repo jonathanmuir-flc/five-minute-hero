@@ -1,0 +1,42 @@
+{
+  "exports": [
+    {
+      "file": "rest.png",
+      "scale": 4
+    }
+  ],
+  "rows": [
+    "..............kyyk..............",
+    ".............kymmyk.............",
+    "............kymkkyyk............",
+    "............kyk..kyk............",
+    "............kyykkymk............",
+    ".............kbbbmk.............",
+    "..........kkkkbmmmkkk...........",
+    ".........kyyyybbbbyyyk..........",
+    "........kybbbbbbbbbbbyk.........",
+    ".......kybbbbbbbbbbbbbyk........",
+    ".......kybmmmmmmmmmmmmbyk.......",
+    ".......kybmmmmmyymmmmmbmk.......",
+    ".......kybmmmbbyybbmmmbmk.......",
+    ".......kybmmbbyyyybbmmbmk.......",
+    ".......kybmbbyyyyyybbmbmk.......",
+    ".......kybmbbyyWWyybbmbmk.......",
+    ".......kybmbbyyWWyybbmbmk.......",
+    ".......kybmbbyyWWyybbmbmk.......",
+    ".......kybmbbyyWWyybbmbmk.......",
+    ".......kybmbbbyWWybbbmbmk.......",
+    ".......kybmmbbyyyybbmmbmk.......",
+    ".......kybmmmbbbbbbmmmbmk.......",
+    ".......kybmmmmmmmmmmmmbmk.......",
+    "......kybbbbbbbbbbbbbbbbyk......",
+    ".......kybbbbbbbbbbbbbbmk.......",
+    "........kymbbbbbbbbbbmmk........",
+    ".........kkmrrrrrrrrrkk.........",
+    "..........kmrrrrrrrrrk..........",
+    "...........kkkkkkkkkk...........",
+    "................................",
+    "................................",
+    "................................"
+  ]
+}

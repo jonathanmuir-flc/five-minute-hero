@@ -1,0 +1,42 @@
+{
+  "exports": [
+    {
+      "file": "potion.png",
+      "scale": 4
+    }
+  ],
+  "rows": [
+    ".............kkkkkk.............",
+    "............kmmmmmmk............",
+    "............kmrrrrrk............",
+    "............kmrrrrrk............",
+    "............kmrrrrrk............",
+    "...........kybbbbbbyk...........",
+    "...........kybbbbbbbk...........",
+    "............kwwwwwwk............",
+    "............kwaaaaak............",
+    "............kwaaaaak............",
+    "............kwaaaaak............",
+    "............kwaaaaak............",
+    "...........kwaaaaaawk...........",
+    ".........kkwaaaaaaaawkk.........",
+    "........kwwWaaaaaaaaawwk........",
+    "........kwaWaaaaaaaaaaak........",
+    ".......kwaWaaaaaaaaaaaawk.......",
+    "......kwaaWaaaaaaaaaaaaawk......",
+    "......kwaaaaaaaaaaaaaaaaak......",
+    "......kPPPPPPPPPPPPPPPPPPk......",
+    "......kPRRRRRRRRRRRRRRRRRk......",
+    "......kPRRRRRRRRRRPRRRRRRk......",
+    "......kPRRRRRRRRRRRRRRRRRk......",
+    "......kPRRRRRPRRRRRRRRRRRk......",
+    "......kPRRRRRRRRRRRRRRRRRk......",
+    ".......kPRRRRRRRRRRRRRRRk.......",
+    "........kPRRRRRPRRRRRRRk........",
+    "........kPRRRRRRRRRRRRRk........",
+    ".........kkPRRRRRRRRRkk.........",
+    "...........kPRRRRRRRk...........",
+    "............kkkkkkkk............",
+    "................................"
+  ]
+}

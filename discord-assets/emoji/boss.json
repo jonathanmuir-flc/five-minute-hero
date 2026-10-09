@@ -1,0 +1,42 @@
+{
+  "exports": [
+    {
+      "file": "boss.png",
+      "scale": 4
+    }
+  ],
+  "rows": [
+    "...........................kkk..",
+    "........................kkkyyyk.",
+    "......................kkyyybbk..",
+    ".....................kyybbbkk...",
+    "....................kybbbbk.....",
+    "...................kybbbbk......",
+    ".................kkybbbbk.......",
+    "...............kkJybbbbbk.......",
+    ".............kkJJybbbbbJGkkkkkk.",
+    "...........kkJJGGGGGGybGGGrrrrrk",
+    "........kkkJJGKKKGGGGGGGGGGrrkk.",
+    "....kkkkJJJGGGGyyKGGGGGGGGgrk...",
+    "...kJJJJGGGGGGGGGGGGGGGGGGgk....",
+    "..kJKGGGGGGGGGGGGGGGGGGGGGGGk...",
+    ".kJGGGGGGGGGGGGGGGGGGGGGGGGgk...",
+    ".kGGGGGGGGGGGGGGGGGGGGGGGGGgbk..",
+    "..kGggggggggGGGGGGGGGGGGGGGgbbk.",
+    "...kKKwKKwKKGgggGGGGGGGGGGGgbk..",
+    "...kKKKKKKKKGgggGGGGGGGGGGGgk...",
+    "....kGGGwGGGgggggGGGGGGGGGGgk...",
+    "...kGggggggggggggGGGGGGGGGGgbkk.",
+    "....kGgggggggggggGGGGGGGGGGgbbbk",
+    ".....kkkkkkkkkkkkGGGGGGGGGGgbbbk",
+    ".................kJGGGGGGGGGGkk.",
+    ".................kJGGGGGGGGGgk..",
+    ".................kGGGGGGGGGGgk..",
+    "..................kJGGGGGGGGgk..",
+    "..................kJGGGGGGGGGGk.",
+    "..................kJGGGGGGGGGgk.",
+    "..................kJGGGGGGGGGgk.",
+    "..................kJGGGGGGGGGgk.",
+    "..................kGggggggggggk."
+  ]
+}
