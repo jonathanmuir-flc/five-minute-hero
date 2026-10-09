@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <title>nat20: d20 showing 20 with a burst</title>
+  <defs>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fae2a0" stop-opacity="0.9"/>
+      <stop offset="0.6" stop-color="#fae2a0" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#fae2a0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="64" cy="64" r="64" fill="url(#glow)"/>
+  <polygon points="64,0.5 77.2,14.74 95.75,9.01 100.06,27.94 118.99,32.25 113.26,50.8 127.5,64 113.26,77.2 118.99,95.75 100.06,100.06 95.75,118.99 77.2,113.26 64,127.5 50.8,113.26 32.25,118.99 27.94,100.06 9.01,95.75 14.74,77.2 0.5,64 14.74,50.8 9.01,32.25 27.94,27.94 32.25,9.01 50.8,14.74" fill="#fae2a0" stroke="#4a3410" stroke-width="3.5" stroke-linejoin="round"/>
+  <g transform="translate(64 65) scale(0.57)">
+    <polygon points="0,-100 -86.6,-50 0,-64" fill="#f3d68a"/>
+    <polygon points="0,-100 86.6,-50 0,-64" fill="#e6c470"/>
+    <polygon points="-86.6,-50 0,-64 -55.43,32" fill="#ecca76"/>
+    <polygon points="-86.6,-50 -55.43,32 -86.6,50" fill="#dcb661"/>
+    <polygon points="-86.6,50 -55.43,32 0,100" fill="#c9a04b"/>
+    <polygon points="-55.43,32 55.43,32 0,100" fill="#b38a36"/>
+    <polygon points="0,100 55.43,32 86.6,50" fill="#a17a2b"/>
+    <polygon points="55.43,32 86.6,50 86.6,-50" fill="#c39d4c"/>
+    <polygon points="86.6,-50 0,-64 55.43,32" fill="#d6b25e"/>
+    <polygon points="0,-64 -55.43,32 55.43,32" fill="#fae2a0"/>
+    <g fill="none" stroke="#4a3410" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M0,-100 L0,-64 M-86.6,-50 L0,-64 L86.6,-50 M-86.6,-50 L-55.43,32 L-86.6,50 M86.6,-50 L55.43,32 L86.6,50 M0,100 L-55.43,32 M0,100 L55.43,32"/>
+      <polygon points="0,-64 -55.43,32 55.43,32"/>
+    </g>
+    <polygon points="0,-100 86.6,-50 86.6,50 0,100 -86.6,50 -86.6,-50" fill="none" stroke="#4a3410" stroke-width="9" stroke-linejoin="round"/>
+    <text x="0" y="23" text-anchor="middle" font-family="Young Serif" font-size="56" fill="#1d2a22">20</text>
+  </g>
+</svg>
